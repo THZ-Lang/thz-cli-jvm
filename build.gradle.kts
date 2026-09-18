@@ -1,9 +1,9 @@
-﻿// ==============================================================================
-// thz-cli â€” CLI e REPL do THZ-LANG
+// ==============================================================================
+// thz-cli — CLI e REPL do THZ-LANG
 //
-// Projeto Gradle autÃ´nomo na raiz do workspace. Consome o nÃºcleo thz-core
-// (../thz-core-jvm) via Composite Build ou artefato publicado. Registra as funÃ§Ãµes
-// TELA.* em modo console (nÃ£o interativo). Gera o UberJAR executÃ¡vel usado
+// Projeto Gradle autônomo na raiz do workspace. Consome o núcleo thz-core
+// (../thz-core-jvm) via Composite Build ou artefato publicado. Registra as funções
+// TELA.* em modo console (não interativo). Gera o UberJAR executável usado
 // pelos scripts de empacotamento e pelo GraalVM native-image.
 // ==============================================================================
 
@@ -74,7 +74,7 @@ tasks.withType<JavaCompile> {
 
 tasks.test {
     useJUnitPlatform()
-    // Testes leem exemplos/ relativo Ã  raiz do workspace (thz-lang)
+    // Testes leem exemplos/ relativo à raiz do workspace (thz-lang)
     workingDir = rootProject.projectDir.resolve("../thz-lang/")
     testLogging {
         events("passed", "skipped", "failed")
@@ -105,7 +105,7 @@ tasks.shadowJar {
     finalizedBy("instalarUberJar", "instalarUberJarVersao")
 }
 
-// Task para executar a CLI â€” workingDir = raiz do workspace para resolver exemplos/*.thz
+// Task para executar a CLI — workingDir = raiz do workspace para resolver exemplos/*.thz
 tasks.register<JavaExec>("cli") {
     group = "application"
     description = "Executa a CLI do THZ-LANG"
