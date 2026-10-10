@@ -50,11 +50,7 @@ public class ComandoRun implements ComandoCli {
 
         boolean ehArquivoUi = arquivo.toLowerCase().endsWith(".thzui")
                 || (ast.tipoModulo() == thz.lang.ast.TipoModulo.TELA)
-                || (ast.tipoModulo() == thz.lang.ast.TipoModulo.PROGRAMA_VISUAL)
-                || argumentos.contains("--gui")
-                || argumentos.contains("--swing")
-                || argumentos.contains("--web")
-                || argumentos.contains("--webview");
+                || (ast.tipoModulo() == thz.lang.ast.TipoModulo.PROGRAMA_VISUAL);
 
         if (ehArquivoUi) {
             executarUi(ast, argumentos, modoWeb);
