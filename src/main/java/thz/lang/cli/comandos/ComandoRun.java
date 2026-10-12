@@ -38,7 +38,7 @@ public class ComandoRun implements ComandoCli {
             CliErros.erroNenhumArquivoEspecificado("thz run <arquivo.thz|arquivo.thzui>");
         }
 
-        var resolved = thz.lang.io.ThzLocalizadorRecursos.localizarArquivo(arquivo, Path.of("."), List.of(".thz", ".thzui"));
+        var resolved = thz.lang.io.ThzLocalizadorRecursos.localizarArquivo(arquivo, Path.of("."), List.of(".thz", ".thzui", ".cbl", ".cob"));
         if (resolved.isPresent()) arquivo = resolved.get().toString();
 
         if (!Files.exists(Path.of(arquivo))) {
@@ -46,7 +46,30 @@ public class ComandoRun implements ComandoCli {
         }
 
         String fonte = Files.readString(Path.of(arquivo), StandardCharsets.UTF_8);
+
+        boolean ehCobol = arquivo.toLowerCase().endsWith(".cbl") || arquivo.toLowerCase().endsWith(".cob");
+        if (ehCobol) {
+            executarCobol(fonte, argumentos);
+            return;
+        }
+
         ProgramaAst ast = ThzCompilerFacade.parseAst(fonte);
+        if (ast == null) {
+            var analise = ThzCompilerFacade.analisar(fonte, estrito);
+            if (analise.temErros()) {
+                for (String bloco : analise.textoDiagnosticos()) {
+                    CliLogger.erro(bloco + "\n");
+                }
+                CliErros.statusComandoCheck(analise.diagnosticos().size());
+            } else {
+                CliLogger.erro("[THZ ERRO] Falha ao processar a árvore sintática (AST) do arquivo.\n");
+            }
+            if (Boolean.getBoolean("thz.test.mode")) {
+                throw new IllegalStateException("Falha de compilação ao executar arquivo.");
+            }
+            System.exit(1);
+            return;
+        }
 
         boolean ehArquivoUi = arquivo.toLowerCase().endsWith(".thzui")
                 || (ast.tipoModulo() == thz.lang.ast.TipoModulo.TELA)
@@ -56,6 +79,21 @@ public class ComandoRun implements ComandoCli {
             executarUi(ast, argumentos, modoWeb);
         } else {
             executarCli(ast, argumentos);
+        }
+    }
+
+    private void executarCobol(String fonte, List<String> argumentos) {
+        try {
+            var resultado = thz.cobol.CobolBridge.executarCobolPuro(fonte);
+            for (String log : resultado.logs()) {
+                System.out.println(log);
+            }
+        } catch (Exception e) {
+            CliLogger.erro("[THZ-COBOL ERRO] Falha ao executar programa COBOL: " + e.getMessage() + "\n");
+            if (Boolean.getBoolean("thz.test.mode")) {
+                throw new IllegalStateException("Falha ao executar COBOL", e);
+            }
+            System.exit(1);
         }
     }
 

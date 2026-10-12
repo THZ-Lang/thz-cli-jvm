@@ -11,3 +11,5 @@ rootProject.name = "thz-cli"
 includeBuild("../thz-core-jvm")
 includeBuild("../thz-gui-jvm")
 includeBuild("../thz-agent-jvm")
+includeBuild("../thz-lang-cobol")
+

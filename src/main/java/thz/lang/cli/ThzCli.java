@@ -100,15 +100,8 @@ public class ThzCli {
         argumentos.remove(0);
         boolean estrito = argumentos.contains("--estrito");
 
-        Set<String> comandosConhecidos = Set.of(
-                "init", "inicializar", "livro", "manual", "book",
-                "compile-all", "compilar-tudo", "compile", "compilar", "build",
-                "dev", "serve", "check", "ast", "fmt", "run", "audit", "doc", "ir", "ui",
-                "agent", "agente"
-        );
-
-        if (!comandosConhecidos.contains(comando.toLowerCase())) {
-            var achado = thz.lang.io.ThzLocalizadorRecursos.localizarArquivo(comandoRaw, java.nio.file.Path.of("."), List.of(".thz", ".thzui"));
+        if (!COMANDOS.containsKey(comando.toLowerCase())) {
+            var achado = thz.lang.io.ThzLocalizadorRecursos.localizarArquivo(comandoRaw, java.nio.file.Path.of("."), List.of(".thz", ".thzui", ".cbl", ".cob"));
             if (achado.isPresent()) {
                 argumentos.add(0, achado.get().toString());
                 comando = "run";
