@@ -36,6 +36,7 @@ public class ComandoRun implements ComandoCli {
         String arquivo = CliHelper.resolverArquivo(argumentos);
         if (arquivo == null || arquivo.isBlank()) {
             CliErros.erroNenhumArquivoEspecificado("thz run <arquivo.thz|arquivo.thzui>");
+            return;
         }
 
         var resolved = thz.lang.io.ThzLocalizadorRecursos.localizarArquivo(arquivo, Path.of("."), List.of(".thz", ".thzui", ".cbl", ".cob"));
@@ -43,13 +44,14 @@ public class ComandoRun implements ComandoCli {
 
         if (!Files.exists(Path.of(arquivo))) {
             CliErros.erroArquivoNaoEncontrado(arquivo);
+            return;
         }
 
         String fonte = Files.readString(Path.of(arquivo), StandardCharsets.UTF_8);
 
         boolean ehCobol = arquivo.toLowerCase().endsWith(".cbl") || arquivo.toLowerCase().endsWith(".cob");
         if (ehCobol) {
-            executarCobol(fonte, argumentos);
+            executarCobol(fonte);
             return;
         }
 
@@ -82,7 +84,7 @@ public class ComandoRun implements ComandoCli {
         }
     }
 
-    private void executarCobol(String fonte, List<String> argumentos) {
+    private void executarCobol(String fonte) {
         try {
             var resultado = thz.cobol.CobolBridge.executarCobolPuro(fonte);
             for (String log : resultado.logs()) {
@@ -187,7 +189,6 @@ public class ComandoRun implements ComandoCli {
                         }
                     }
                 }
-                return;
             }
         } catch (Throwable t) {
             CliErros.displaySwingIndisponivel(t.getMessage());
@@ -195,7 +196,6 @@ public class ComandoRun implements ComandoCli {
             String html = maker.renderizarHtml(ast.nome(), thz.lang.ui.ThzUiTema.escuroGlass());
             String url = thz.lang.webview.ThzWebViewLauncher.abrirHtml("THZ-UI: " + ast.nome(), html, 1024, 768);
             CliLogger.info("[THZ-UI WEB] Interface aberta em: " + url);
-            return;
         }
     }
 

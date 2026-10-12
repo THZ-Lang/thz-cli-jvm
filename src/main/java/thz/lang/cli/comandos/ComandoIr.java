@@ -22,6 +22,7 @@ public class ComandoIr implements ComandoCli {
         String arquivo = CliHelper.resolverArquivo(argumentos);
         if (arquivo == null || arquivo.isBlank() || !Files.exists(Path.of(arquivo))) {
             CliErros.erroArquivoNaoEncontrado(arquivo);
+            return;
         }
         String fonte = Files.readString(Path.of(arquivo), StandardCharsets.UTF_8);
 

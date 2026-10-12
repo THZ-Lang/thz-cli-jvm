@@ -137,14 +137,14 @@ public class ThzCliTest {
         ThzIO.escreverTexto(arquivoInvalido.toString(), src);
 
         try {
-            assertThrows(IllegalStateException.class, () ->
-                    ThzCli.main(new String[]{"check", arquivoInvalido.toString()}));
+            assertNotNull(assertThrows(IllegalStateException.class, () ->
+                    ThzCli.main(new String[]{"check", arquivoInvalido.toString()})));
 
-            assertThrows(IllegalStateException.class, () ->
-                    ThzCli.main(new String[]{"compile", arquivoInvalido.toString()}));
+            assertNotNull(assertThrows(IllegalStateException.class, () ->
+                    ThzCli.main(new String[]{"compile", arquivoInvalido.toString()})));
 
-            assertThrows(IllegalStateException.class, () ->
-                    ThzCli.main(new String[]{"ir", arquivoInvalido.toString()}));
+            assertNotNull(assertThrows(IllegalStateException.class, () ->
+                    ThzCli.main(new String[]{"ir", arquivoInvalido.toString()})));
         } finally {
             System.clearProperty("thz.test.mode");
         }
