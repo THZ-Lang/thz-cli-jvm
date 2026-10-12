@@ -22,8 +22,25 @@ public class ComandoCheck implements ComandoCli {
         String arquivo = CliHelper.resolverArquivo(argumentos);
         if (arquivo == null || arquivo.isBlank() || !Files.exists(Path.of(arquivo))) {
             CliErros.erroArquivoNaoEncontrado(arquivo);
+            return;
         }
         String fonte = Files.readString(Path.of(arquivo), StandardCharsets.UTF_8);
+
+        if (arquivo.toLowerCase().endsWith(".cbl") || arquivo.toLowerCase().endsWith(".cob")) {
+            try {
+                var prog = thz.cobol.parser.CobolProcedureParser.parseProgram(fonte);
+                CliLogger.info("[THZ CHECK] Programa COBOL validado com sucesso! PROGRAM-ID: " + prog.programId());
+                return;
+            } catch (Exception e) {
+                CliLogger.erro("[THZ CHECK] Falha ao analisar programa COBOL: " + e.getMessage() + "\n");
+                if (Boolean.getBoolean("thz.test.mode")) {
+                    throw new IllegalStateException("Check COBOL falhou: " + e.getMessage());
+                }
+                System.exit(1);
+                return;
+            }
+        }
+
         var analise = thz.lang.fachada.ThzCompilerFacade.analisar(fonte, estrito);
         if (analise.temErros()) {
             for (String bloco : analise.textoDiagnosticos())

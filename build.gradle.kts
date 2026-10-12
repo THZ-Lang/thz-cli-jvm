@@ -35,6 +35,7 @@ dependencies {
     implementation("thz.lang:thz-core:$thzVersion")
     implementation("thz.lang:thz-gui-jvm:$thzVersion")
     implementation("thz.lang:thz-agent-jvm:$thzVersion")
+    implementation("thz.lang:thz-lang-cobol:$thzVersion")
 
     // Testes Automatizados
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")

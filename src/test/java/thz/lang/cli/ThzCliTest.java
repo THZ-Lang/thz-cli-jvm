@@ -137,14 +137,14 @@ public class ThzCliTest {
         ThzIO.escreverTexto(arquivoInvalido.toString(), src);
 
         try {
-            assertThrows(IllegalStateException.class, () ->
-                    ThzCli.main(new String[]{"check", arquivoInvalido.toString()}));
+            assertNotNull(assertThrows(IllegalStateException.class, () ->
+                    ThzCli.main(new String[]{"check", arquivoInvalido.toString()})));
 
-            assertThrows(IllegalStateException.class, () ->
-                    ThzCli.main(new String[]{"compile", arquivoInvalido.toString()}));
+            assertNotNull(assertThrows(IllegalStateException.class, () ->
+                    ThzCli.main(new String[]{"compile", arquivoInvalido.toString()})));
 
-            assertThrows(IllegalStateException.class, () ->
-                    ThzCli.main(new String[]{"ir", arquivoInvalido.toString()}));
+            assertNotNull(assertThrows(IllegalStateException.class, () ->
+                    ThzCli.main(new String[]{"ir", arquivoInvalido.toString()})));
         } finally {
             System.clearProperty("thz.test.mode");
         }
@@ -321,6 +321,47 @@ public class ThzCliTest {
         } finally {
             System.setOut(orig);
             System.clearProperty("thz.test.mode");
+        }
+    }
+
+    @Test
+    @DisplayName("ThzCli deve executar e checar arquivo COBOL (.cbl) standalone com sucesso")
+    void testExecutarArquivoCobolPuroCli(@TempDir Path tempDir) throws Exception {
+        Path cblArquivo = tempDir.resolve("TESTE_CALC.cbl");
+        String cobolSrc = """
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. TESTE-CALC.
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+            01  DADOS.
+                05  VALOR-A    PIC S9(5)V99 COMP-3.
+                05  VALOR-B    PIC S9(5)V99 COMP-3.
+                05  RESULTADO  PIC S9(5)V99 COMP-3.
+            PROCEDURE DIVISION.
+            INICIAR.
+                MOVE 100.00 TO VALOR-A.
+                MOVE 25.50 TO VALOR-B.
+                COMPUTE RESULTADO = VALOR-A + VALOR-B.
+                DISPLAY "Soma COBOL: " RESULTADO.
+                GOBACK.
+            """;
+        Files.writeString(cblArquivo, cobolSrc, StandardCharsets.UTF_8);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream orig = System.out;
+        try {
+            System.setOut(new PrintStream(out));
+
+            // 1. Teste do comando check para COBOL
+            ThzCli.main(new String[]{"check", cblArquivo.toString()});
+
+            // 2. Teste do comando run para COBOL
+            ThzCli.main(new String[]{"run", cblArquivo.toString()});
+
+            String saida = out.toString(StandardCharsets.UTF_8);
+            assertTrue(saida.contains("Soma COBOL: 125.50"), "Deve imprimir a saída calculada pelo motor COBOL");
+        } finally {
+            System.setOut(orig);
         }
     }
 }
