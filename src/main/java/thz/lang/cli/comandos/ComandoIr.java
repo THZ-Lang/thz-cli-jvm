@@ -22,8 +22,28 @@ public class ComandoIr implements ComandoCli {
         String arquivo = CliHelper.resolverArquivo(argumentos);
         if (arquivo == null || arquivo.isBlank() || !Files.exists(Path.of(arquivo))) {
             CliErros.erroArquivoNaoEncontrado(arquivo);
+            return;
         }
         String fonte = Files.readString(Path.of(arquivo), StandardCharsets.UTF_8);
+
+        if (arquivo.toLowerCase().endsWith(".cbl") || arquivo.toLowerCase().endsWith(".cob")) {
+            String llvmIr = thz.cobol.CobolBridge.emitirLlvmIr(fonte);
+            String idxSaida = null;
+            int idx = argumentos.indexOf("--saida");
+            if (idx >= 0 && idx + 1 < argumentos.size()) {
+                idxSaida = argumentos.get(idx + 1);
+            }
+            if (idxSaida != null) {
+                Path alvo = idxSaida.contains(".") ? Path.of(idxSaida) : Path.of(idxSaida, "cobol.ll");
+                Files.createDirectories(alvo.getParent() != null ? alvo.getParent() : Path.of("."));
+                Files.writeString(alvo, llvmIr, StandardCharsets.UTF_8);
+                CliLogger.info("[THZ IR] Saída (LLVM IR) gravada em: " + alvo);
+            } else {
+                CliLogger.saida(llvmIr);
+            }
+            return;
+        }
+
         var analise = thz.lang.fachada.ThzCompilerFacade.analisar(fonte, estrito);
         if (analise.temErros()) {
             for (String bloco : analise.textoDiagnosticos()) {
